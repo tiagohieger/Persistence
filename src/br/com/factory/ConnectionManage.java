@@ -1,6 +1,6 @@
 package br.com.factory;
 
-import br.com.makesystem.commons.util.ThreadUtil;
+import br.com.commons.util.ThreadUtil;
 import br.com.types.ConnectionType;
 import java.sql.SQLException;
 import java.util.Calendar;

@@ -11,12 +11,12 @@ import java.util.List;
  *
  * @author giovanimoura
  */
-public class ParametrosFuncao {
+public class FunctionParam {
     
     private String nomeFuncao = "";
     private List listParam = null;
     
-    public ParametrosFuncao(String nomeFuncao, Object... param) {
+    public FunctionParam(String nomeFuncao, Object... param) {
         this.nomeFuncao = nomeFuncao;
         listParam = Arrays.asList(param);
     }

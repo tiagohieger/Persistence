@@ -2,8 +2,8 @@ package br.com.factory;
 
 import br.com.annotations.Fk;
 import br.com.annotations.Transient;
-import static br.com.generic.GenericDAO.DATE_FORMATTER;
-import static br.com.generic.GenericDAO.DATE_TIME_FORMATTER;
+import static br.com.generic.GenericDao.DATE_FORMATTER;
+import static br.com.generic.GenericDao.DATE_TIME_FORMATTER;
 import br.com.utils.DateUtils;
 import br.com.utils.SQLUtils;
 import java.io.File;
@@ -472,7 +472,7 @@ public class Query implements Serializable {
      * @param parametros
      * @throws SQLException
      */
-    public void executeProcedure(ParametrosFuncao parametros) throws Exception {
+    public void executeProcedure(FunctionParam parametros) throws Exception {
         String rowsFuncao = "("; // Organiza os rows (parametros de entrada) da função      
         String sep = "";
         for (Object param : parametros.getListParametros()) {
@@ -580,7 +580,7 @@ public class Query implements Serializable {
      * @param parametros
      * @throws Exception
      */
-    public void executaFuncao(ParametrosFuncao parametros) throws Exception {
+    public void executeFunction(FunctionParam parametros) throws Exception {
         String rowsFuncao = "("; // Organiza os rows (parametros de entrada) da função
         String sep = "";
         for (Object param : parametros.getListParametros()) {
@@ -629,7 +629,7 @@ public class Query implements Serializable {
      * @param parametros
      * @throws Exception
      */
-    public void executaFuncaoAndroid(ParametrosFuncao parametros) throws Exception {
+    public void executaFuncaoAndroid(FunctionParam parametros) throws Exception {
         String rowsFuncao = "("; // Organiza os rows (parametros de entrada) da função
         String sep = "";
         for (Object param : parametros.getListParametros()) {
