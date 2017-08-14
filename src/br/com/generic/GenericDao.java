@@ -26,29 +26,29 @@ public class GenericDao<T> implements IDAO<T> {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     protected Query qrysql = null;
-    protected Connection conexao = null;
-    protected Class classe = null;
+    protected Connection connection = null;
+    protected Class specificClass = null;
 
     public GenericDao(Connection conexao) {
-        this.conexao = conexao;
-        classe = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        qrysql = new Query(this.conexao);
+        this.connection = conexao;
+        specificClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        qrysql = new Query(this.connection);
     }
 
     public GenericDao(Connection conexao, Class especificClass) {
-        this.conexao = conexao;
-        classe = especificClass;
-        qrysql = new Query(this.conexao);
+        this.connection = conexao;
+        specificClass = especificClass;
+        qrysql = new Query(this.connection);
     }
 
-    public void setClasse(Class classe) {
-        this.classe = classe;
+    public void setClasse(Class especificClass) {
+        this.specificClass = especificClass;
     }
 
-    public void executarFuncao(final String nomeFuncao, Object... param) throws Exception {
+    public void executeFunction(final String functionName, Object... param) throws Exception {
 
-        final Query query = new Query(conexao);
-        query.executeFunction(new FunctionParam(nomeFuncao, param));
+        final Query query = new Query(connection);
+        query.executeFunction(new FunctionParam(functionName, param));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class GenericDao<T> implements IDAO<T> {
     @Override
     public void remove(int id) throws Exception {
         qrysql.clear();
-        qrysql.setText(SQLUtils.getDeleteById(classe));
+        qrysql.setText(SQLUtils.getDeleteById(specificClass));
         qrysql.addParam(1, id);
         qrysql.execute();
     }
@@ -108,14 +108,14 @@ public class GenericDao<T> implements IDAO<T> {
     @Override
     public void removeAll() throws Exception {
         qrysql.clear();
-        qrysql.setText(SQLUtils.getDeleteAll(classe));
+        qrysql.setText(SQLUtils.getDeleteAll(specificClass));
         qrysql.execute();
     }
 
     @Override
     public void truncate() throws Exception {
         qrysql.clear();
-        qrysql.setText(SQLUtils.getDeleteAll(classe));
+        qrysql.setText(SQLUtils.getDeleteAll(specificClass));
         qrysql.execute();
     }
 
@@ -123,7 +123,7 @@ public class GenericDao<T> implements IDAO<T> {
     public void deleteByParams(Object[]... params) throws Exception {
         int index = 1;
         qrysql.clear();
-        qrysql.setText(SQLUtils.getDeleteByParams(classe, params));
+        qrysql.setText(SQLUtils.getDeleteByParams(specificClass, params));
         for (Object[] param : params) {
             qrysql.addParam(index, param[1]);
             index++;
@@ -133,17 +133,17 @@ public class GenericDao<T> implements IDAO<T> {
 
     @Override
     public T getEntity(int id, boolean isdepenteces) throws Exception {
-        qrysql.setText(SQLUtils.getSelectByID(classe, isdepenteces));
+        qrysql.setText(SQLUtils.getSelectByID(specificClass, isdepenteces));
         qrysql.addParam(1, id);
         qrysql.open();
         T t = null;
         if (qrysql.next()) {
             if (isdepenteces) {
-                Object toreturn = SQLUtils.entityPopulate(qrysql, classe);
+                Object toreturn = SQLUtils.entityPopulate(qrysql, specificClass);
                 loadDependeces((T) toreturn, qrysql);
                 t = (T) toreturn;
             } else {
-                t = (T) SQLUtils.entityPopulate(qrysql, classe);
+                t = (T) SQLUtils.entityPopulate(qrysql, specificClass);
             }
         }
         return t;
@@ -160,7 +160,7 @@ public class GenericDao<T> implements IDAO<T> {
     }
 
     public Object getEntityByID(Class entity, int id, boolean isdepenteces) throws Exception {
-        Query qry = new Query(conexao);
+        Query qry = new Query(connection);
         qry.setText(SQLUtils.getSelectByID(entity, isdepenteces));
         qry.addParam(1, id);
         qry.open();
@@ -185,7 +185,7 @@ public class GenericDao<T> implements IDAO<T> {
             orderby = " order by ";
             String sep = "";
             final List<Field> camposTabela = new LinkedList<>();
-            camposTabela.addAll(PersistenceUtils.listFields(classe));
+            camposTabela.addAll(PersistenceUtils.listFields(specificClass));
             for (Field f : camposTabela) {
                 f.setAccessible(true);
                 if (f.isAnnotationPresent(Id.class)) {
@@ -194,15 +194,15 @@ public class GenericDao<T> implements IDAO<T> {
                 }
             }
         }
-        qrysql.setText(SQLUtils.getSelectFull(classe, isdepenteces) + orderby);
+        qrysql.setText(SQLUtils.getSelectFull(specificClass, isdepenteces) + orderby);
         qrysql.open();
         while (qrysql.next()) {
             if (isdepenteces) {
-                Object toreturn = SQLUtils.entityPopulate(qrysql, classe);
+                Object toreturn = SQLUtils.entityPopulate(qrysql, specificClass);
                 loadDependeces((T) toreturn, qrysql);
                 listEntity.add((T) toreturn);
             } else {
-                listEntity.add((T) SQLUtils.entityPopulate(qrysql, classe));
+                listEntity.add((T) SQLUtils.entityPopulate(qrysql, specificClass));
             }
         }
         return listEntity;
@@ -212,15 +212,15 @@ public class GenericDao<T> implements IDAO<T> {
     public List<T> listEntityWhere(String where, boolean isdepenteces) throws IllegalAccessException, InstantiationException, SQLException, ClassNotFoundException {
         List<T> listEntity = new LinkedList<>();
         qrysql.clear();
-        qrysql.setText(SQLUtils.getSelectFull(classe, isdepenteces) + " " + where);
+        qrysql.setText(SQLUtils.getSelectFull(specificClass, isdepenteces) + " " + where);
         qrysql.open();
         while (qrysql.next()) {
             if (isdepenteces) {
-                Object toreturn = SQLUtils.entityPopulate(qrysql, classe);
+                Object toreturn = SQLUtils.entityPopulate(qrysql, specificClass);
                 loadDependeces((T) toreturn, qrysql);
                 listEntity.add((T) toreturn);
             } else {
-                listEntity.add((T) SQLUtils.entityPopulate(qrysql, classe));
+                listEntity.add((T) SQLUtils.entityPopulate(qrysql, specificClass));
             }
         }
         return listEntity;
@@ -230,15 +230,15 @@ public class GenericDao<T> implements IDAO<T> {
     public T getEntityWhere(String where, boolean isdepenteces) throws InstantiationException, IllegalAccessException, SQLException, ClassNotFoundException {
         T entity = null;
         qrysql.clear();
-        qrysql.setText(SQLUtils.getSelectFull(classe, isdepenteces) + " " + where);
+        qrysql.setText(SQLUtils.getSelectFull(specificClass, isdepenteces) + " " + where);
         qrysql.open();
         while (qrysql.next()) {
             if (isdepenteces) {
-                Object toreturn = SQLUtils.entityPopulate(qrysql, classe);
+                Object toreturn = SQLUtils.entityPopulate(qrysql, specificClass);
                 loadDependeces((T) toreturn, qrysql);
                 entity = (T) toreturn;
             } else {
-                entity = (T) SQLUtils.entityPopulate(qrysql, classe);
+                entity = (T) SQLUtils.entityPopulate(qrysql, specificClass);
             }
         }
         return entity;
