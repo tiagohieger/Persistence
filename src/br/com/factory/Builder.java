@@ -783,6 +783,8 @@ public class Builder {
                 sqlTipoColuna.append(" NUMERIC (8,3) ");
                 break;
             case "long":
+                 sqlTipoColuna.append(" BIGINT ");
+                break;
             case "bufferedimage":
             case "image":
             case "imageicon":
