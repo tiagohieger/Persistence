@@ -336,6 +336,24 @@ public class Builder {
                     final Column annotation = field.getAnnotation(Column.class);
                     final String fieldName = PersistenceUtils.columnName(field);
 
+                    if (annotation.notNull() && annotation.defaultValue() != null && !annotation.defaultValue().isEmpty()) {
+                        builder.append(" UPDATE ");
+                        builder.append(nomeTabela);
+                        builder.append(" SET ");
+                        builder.append(fieldName);
+                        builder.append(" = ");
+                        if (isText(field)) {
+                            builder.append("'");
+                            builder.append(annotation.defaultValue());
+                            builder.append("'");
+                        } else {
+                            builder.append(annotation.defaultValue());
+                        }
+                        builder.append(" WHERE ");
+                        builder.append(fieldName);
+                        builder.append(" IS NULL; ");
+                    }
+                    
                     builder.append(" ALTER TABLE ");
                     builder.append(nomeTabela);
                     builder.append(" ALTER COLUMN ");
